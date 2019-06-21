@@ -33,7 +33,7 @@ New-UDGridLayout -Layout $LayoutHP -Content {
                     }
                 } | Out-UDGridData }
 		New-UDCounter -Id "CountCreaUser" -Title "Nombre d'utilisateur créé" -AutoRefresh -Icon calculator
-		New-UDCounter -Id "CountCreateGroup" -Title "Nombre de groupe créé" -AutoRefresh -Icon calculator -Links @(New-UDLink -Text 'Télécharger CSV' -Url '/Fichier/creategroup_groupe.csv'
+		New-UDCounter -Id "CountCreateGroup" -Title "Nombre de groupe créé" -AutoRefresh -Icon calculator -Links @(New-UDLink -Text 'Télécharger CSV' -Url '/Fichier/creategroup_$Session:Domaine.csv'
                                                                                                                    New-UDLink -Text 'Plus de détails' -Url '/CreateGroup')
 		New-UDCounter -Id "CountDisaUser" -Title "Nombre d'utilisateur désactivé " -AutoRefresh -Icon calculator
 		New-UDCounter -Id "CountDisaComp" -Title "Nombre d'ordinateur désactivé " -AutoRefresh -Icon calculator
@@ -46,7 +46,7 @@ New-UDGridLayout -Layout $LayoutHP -Content {
 }
 
 ###Page CreateUser
-$CreateUser = New-UDPage -Name 'CreateUser' -Title "Utilisateur crée depuis au moins 90 jours $Domaine" -Icon user_plus -Content {
+$CreateUser = New-UDPage -Name 'CreateUser' -Title "Utilisateur crée depuis au moins 90 jours $Session:Domaine" -Icon user_plus -Content {
     $LayoutUser = '{"lg":[{"w":7,"h":13,"x":0,"y":0,"i":"grid-element-topLeft","moved":false,"static":false},{"w":3,"h":3,"x":7,"y":0,"i":"grid-element-CountCreaUser","moved":false,"static":false},{"w":5,"h":4,"x":7,"y":3,"i":"grid-element-grid","moved":false,"static":false},{"w":3,"h":3,"x":0,"y":0,"i":"grid-element-SelectDomaineCU","moved":false,"static":false},{"w":3,"h":3,"x":4,"y":0,"i":"grid-element-dlCreateUser","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $LayoutUser -Content {
         New-UDChart -Id "topLeft" -Type Bar -Endpoint {
@@ -71,19 +71,19 @@ $CreateUser = New-UDPage -Name 'CreateUser' -Title "Utilisateur crée depuis au 
         }
 
         New-UDCounter -Id "CountCreaUser" -Title "Nombre d'utilisateur" -AutoRefresh -Icon calculator -Endpoint {
-            $csvcount = Import-Csv C:\inetpub\wwwroot\Fichier\createuser_groupe.csv
+            $csvcount = Import-Csv C:\inetpub\wwwroot\Fichier\createuser_$Session:Domaine.csv
             $csvcount.count-1
         }
        
-        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlCreateUser" -Text "Télécharger le fichier Csv" -Url "Fichier/createuser_groupe.csv"
+                New-UDLink -Id "dlCreateUser" -Text "Télécharger le fichier Csv" -Url "Fichier/createuser_$Session:Domaine.csv"
 
         New-UDGrid -Id "grid" -Title "Fichier : " -Headers @("WhenCreated", "DistinguishedName", "Enabled") -Properties @("WhenCreated", "DistinguishedName", "Enabled") -DefaultSortColumn "WhenCreated" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\createuser_groupe.csv 
+            $csv = import-csv $Root\createuser_$Session:Domaine.csv 
             $csv | Select-Object "WhenCreated", "DistinguishedName", "Enabled" | Out-UDGridData
         } -PageSize 4
     }
@@ -92,70 +92,70 @@ $CreateUser = New-UDPage -Name 'CreateUser' -Title "Utilisateur crée depuis au 
 }
 
 ###Page CreateGroup
-$CreateGroup = New-UDPage -Name 'CreateGroup' -Title "Groupe crée depuis au moins 90 jours $Domaine" -Icon users -Content {
+$CreateGroup = New-UDPage -Name 'CreateGroup' -Title "Groupe crée depuis au moins 90 jours $Session:Domaine" -Icon users -Content {
 
     $LayoutComp = '{"lg":[{"w":9,"h":10,"x":0,"y":1,"i":"grid-element-CreateGroup","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-CountCreateGroup","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlCreateGroup","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $LayoutComp -Content {
-        New-UDCounter -Id "CountCreateGroup" -Title "Nombre de groupe " -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountord = Import-Csv C:\inetpub\wwwroot\Fichier\creategroup_groupe.csv
+        New-UDCounter -Id "CountCreateGroup" -Title "Nombre de Groupe " -AutoRefresh -Icon calculator -Endpoint {
+            $csvcountord = Import-Csv C:\inetpub\wwwroot\Fichier\creategroup_$Session:Domaine.csv
             $csvcountord.count-1
         }
 
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlCreateGroup" -Text "Télécharger le fichier Csv" -Url "Fichier/creategroup_groupe.csv"
+                New-UDLink -Id "dlCreateGroup" -Text "Télécharger le fichier Csv" -Url "Fichier/creategroup_$Session:Domaine.csv"
        
         New-UDGrid -Id "CreateGroup" -Title "Fichier : " -Headers @("WhenCreated", "DistinguishedName", "GroupCategory") -Properties @("WhenCreated", "DistinguishedName", "GroupCategory") -DefaultSortColumn "WhenCreated" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\creategroup_groupe.csv
+            $csv = import-csv $Root\creategroup_$Session:Domaine.csv
             $csv | Select-Object "WhenCreated", "DistinguishedName", "GroupCategory" | Out-UDGridData
         } -PageSize 11
     }
 }
 
 ###Page DisableUser
-$DisableUser = New-UDPage -Name 'DisableUser' -Title "Utilisateur désactivé $Domaine" -Icon user_alt_slash -Content {
+$DisableUser = New-UDPage -Name 'DisableUser' -Title "Utilisateur désactivé $Session:Domaine" -Icon user_alt_slash -Content {
     $LayoutComp = '{"lg":[{"w":9,"h":10,"x":0,"y":1,"i":"grid-element-DisableUser","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-CountDisaUser","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlDisaUser","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $LayoutComp -Content {
         New-UDCounter -Id "CountDisaUser" -Title "Nombre d'utilisateur" -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountDisaUser = Import-Csv C:\inetpub\wwwroot\Fichier\disableduseracc_groupe.csv
+            $csvcountDisaUser = Import-Csv C:\inetpub\wwwroot\Fichier\disableduseracc_$Session:Domaine.csv
             $csvcountDisaUser.count-1
         }
 
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlDisaUser" -Text "Télécharger le fichier Csv" -Url "Fichier/disableduseracc_groupe.csv"
+                New-UDLink -Id "dlDisaUser" -Text "Télécharger le fichier Csv" -Url "Fichier/disableduseracc_$Session:Domaine.csv"
        
         New-UDGrid -Id "DisableUser" -Title "Fichier : " -Headers @("SamAccountName", "DistinguishedName") -Properties @("SamAccountName", "DistinguishedName") -DefaultSortColumn "SamAccountName" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\disableduseracc_groupe.csv
+            $csv = import-csv $Root\disableduseracc_$Session:Domaine.csv
             $csv | Select-Object "SamAccountName", "DistinguishedName"| Out-UDGridData
         } -PageSize 11
     }
 }
 
 ###Page DisableComp
-$DisableComp = New-UDPage -Name 'DisableComp' -Title "Ordinateur désactivé $Domaine" -Icon laptop_code -Content {
+$DisableComp = New-UDPage -Name 'DisableComp' -Title "Ordinateur désactivé $Session:Domaine" -Icon laptop_code -Content {
     $LayoutComp = '{"lg":[{"w":9,"h":10,"x":0,"y":1,"i":"grid-element-DisableComp","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-CountDisaComp","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlDisaComp","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $LayoutComp -Content {
         New-UDCounter -Id "CountDisaComp" -Title "Nombre d'ordinateur désactivé" -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountDisaComp = Import-Csv C:\inetpub\wwwroot\Fichier\DisabledComps_groupe.CSV
+            $csvcountDisaComp = Import-Csv C:\inetpub\wwwroot\Fichier\DisabledComps_$Session:Domaine.CSV
             $csvcountDisaComp.count-1
         }
 
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlDisaComp" -Text "Télécharger le fichier Csv" -Url "Fichier/DisabledComps_groupe.csv"
+                New-UDLink -Id "dlDisaComp" -Text "Télécharger le fichier Csv" -Url "Fichier/DisabledComps_$Session:Domaine.csv"
        
         New-UDGrid -Id "DisableComp" -Title "Fichier :" -Headers @("SamAccountName", "DistinguishedName","OperatingSystem") -Properties @("SamAccountName", "DistinguishedName","OperatingSystem") -DefaultSortColumn "SamAccountName" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\DisabledComps_groupe.CSV
+            $csv = import-csv $Root\DisabledComps_$Session:Domaine.CSV
             $csv | Select-Object "SamAccountName", "DistinguishedName","OperatingSystem"| Out-UDGridData
         } -PageSize 11
     }
@@ -163,91 +163,91 @@ $DisableComp = New-UDPage -Name 'DisableComp' -Title "Ordinateur désactivé $Do
 }
 
 ###Page InactiveUser
-$InactiveUser = New-UDPage -Name 'InactiveUser' -Title "Utilisateur inactif depuis au moins 90 jours $Domaine" -Icon user_clock -Content {
+$InactiveUser = New-UDPage -Name 'InactiveUser' -Title "Utilisateur inactif depuis au moins 90 jours $Session:Domaine" -Icon user_clock -Content {
     $LayoutComp = '{"lg":[{"w":9,"h":10,"x":0,"y":1,"i":"grid-element-InactiveUser","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-CountInaUser","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlInaUser","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $LayoutComp -Content {
         New-UDCounter -Id "CountInaUser" -Title "Nombre d'utilisateur " -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountInaUser = Import-Csv C:\inetpub\wwwroot\Fichier\inactiveuser-groupe.csv
+            $csvcountInaUser = Import-Csv C:\inetpub\wwwroot\Fichier\inactiveuser-$Session:Domaine.csv
             $csvcountInaUser.count-1
         }
 
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlInaUser" -Text "Télécharger le fichier Csv" -Url "Fichier/inactiveuser-groupe.csv"
+                New-UDLink -Id "dlInaUser" -Text "Télécharger le fichier Csv" -Url "Fichier/inactiveuser-$Session:Domaine.csv"
        
         New-UDGrid -Id "InactiveUser" -Title "Fichier : " -Headers @("LastLogonDate", "Distinguishedname") -Properties @("LastLogonDate", "Distinguishedname") -DefaultSortColumn "LastLogonDate" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\inactiveuser-groupe.csv
+            $csv = import-csv $Root\inactiveuser-$Session:Domaine.csv
             $csv | Select-Object "LastLogonDate", "Distinguishedname"| Out-UDGridData
         } -PageSize 11
     }
 }
 
 ###Page InactiveComputer
-$InactiveComp = New-UDPage -Name 'InactiveComp' -Title "Ordinateur inactif depuis au moins 90 jours $Domaine" -Icon hdd -Content {
+$InactiveComp = New-UDPage -Name 'InactiveComp' -Title "Ordinateur inactif depuis au moins 90 jours $Session:Domaine" -Icon hdd -Content {
 $Layout = '{"lg":[{"w":9,"h":14,"x":0,"y":0,"i":"grid-element-2753877e-4714-4d22-aa26-eb6f09e92f4a","moved":false,"static":false},{"w":3,"h":4,"x":9,"y":0,"i":"grid-element-CountInaComp","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlInaComp","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $Layout -Content {
 		New-UDCounter -Id "CountInaComp" -Title "Nombre d'utilisateur " -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountInaComp = Import-Csv C:\inetpub\wwwroot\Fichier\inactivecomp_groupe.csv
+            $csvcountInaComp = Import-Csv C:\inetpub\wwwroot\Fichier\inactivecomp_$Session:Domaine.csv
             $csvcountInaComp.count-1
         }
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlInaComp" -Text "Télécharger le fichier Csv" -Url "Fichier/inactivecomp_groupe.csv"
+                New-UDLink -Id "dlInaComp" -Text "Télécharger le fichier Csv" -Url "Fichier/inactivecomp_$Session:Domaine.csv"
 
 	
         New-UDGrid -Id "2753877e-4714-4d22-aa26-eb6f09e92f4a" -Title "Fichier : " -Headers @("lastlogondate", "DistinguishedName") -Properties @("lastlogondate", "DistinguishedName") -DefaultSortColumn "lastlogondate" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\inactivecomp_groupe.csv
+            $csv = import-csv $Root\inactivecomp_$Session:Domaine.csv
             $csv | Select-Object "lastlogondate", "DistinguishedName"| Out-UDGridData
         } -PageSize 11
 	}
 }
 
 ###Page PwNeverExpire
-$PwNeverExpire = New-UDPage -Name 'PwNeverExpire' -Title "Mot de passe qui n'expire jamais $Domaine" -Icon key -Content {
+$PwNeverExpire = New-UDPage -Name 'PwNeverExpire' -Title "Mot de passe qui n'expire jamais $Session:Domaine" -Icon key -Content {
     $Layout = '{"lg":[{"w":9,"h":14,"x":0,"y":0,"i":"grid-element-GridPw","moved":false,"static":false},{"w":3,"h":4,"x":9,"y":0,"i":"grid-element-CountPw","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlPw","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $Layout -Content {
 		New-UDCounter -Id "CountPw" -Title "Nombre de mot de passe" -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountInaComp = Import-Csv C:\inetpub\wwwroot\Fichier\pw_never_expires_groupe.csv
+            $csvcountInaComp = Import-Csv C:\inetpub\wwwroot\Fichier\pw_never_expires_$Session:Domaine.csv
             $csvcountInaComp.count-1
         }
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlPw" -Text "Télécharger le fichier Csv" -Url "Fichier/pw_never_expires_groupe.csv"
+                New-UDLink -Id "dlPw" -Text "Télécharger le fichier Csv" -Url "Fichier/pw_never_expires_$Session:Domaine.csv"
 
 	
         New-UDGrid -Id "GridPw" -Title "Fichier : " -Headers @("Name", "DistinguishedName","Enabled") -Properties @("Name", "DistinguishedName","Enabled") -DefaultSortColumn "Enabled" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\pw_never_expires_groupe.csv
+            $csv = import-csv $Root\pw_never_expires_$Session:Domaine.csv
             $csv | Select-Object "Name", "DistinguishedName","Enabled"| Out-UDGridData
         } -PageSize 11
 	}
 }
 
-$EmptyGroup = New-UDPage -Name 'EmptyGroup' -Title "Groupe vide $Domaine" -Icon folder_open -Content {
+$EmptyGroup = New-UDPage -Name 'EmptyGroup' -Title "$Session:Domaine vide $Session:Domaine" -Icon folder_open -Content {
     $Layout = '{"lg":[{"w":9,"h":14,"x":0,"y":0,"i":"grid-element-GridEmptyGroup","moved":false,"static":false},{"w":3,"h":4,"x":9,"y":0,"i":"grid-element-CountEmptyGroup","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":0,"i":"grid-element-SelectDomaine","moved":false,"static":false},{"w":3,"h":3,"x":10,"y":8,"i":"grid-element-dlEmptyGroup","moved":false,"static":false}]}'
     New-UDGridLayout -Layout $Layout -Content {
-		New-UDCounter -Id "CountEmptyGroup" -Title "Nombre de groupe vide" -AutoRefresh -Icon calculator -Endpoint {
-            $csvcountInaComp = Import-Csv C:\inetpub\wwwroot\Fichier\ademptygroup_groupe.csv
+		New-UDCounter -Id "CountEmptyGroup" -Title "Nombre de $Session:Domaine vide" -AutoRefresh -Icon calculator -Endpoint {
+            $csvcountInaComp = Import-Csv C:\inetpub\wwwroot\Fichier\ademptygroup_$Session:Domaine.csv
             $csvcountInaComp.count-1
         }
-        New-UDSelect -Id "SelectDomaine" -Label "Selection du Domaine (defaut groupe)" -Option {
-            New-UDSelectOption -Name "Groupe" -Value groupe
+        New-UDSelect -Id "SelectDomaineCU" -Label "Selection du Domaine (defaut $Session:Domaine)" -Option {
+            New-UDSelectOption -Name "groupe" -Value groupe
             New-UDSelectOption -Name "ImATest" -Value ImATest
-                }
+                }-OnChange {$EventData = $Session:Domaine}
 
-                New-UDLink -Id "dlEmptyGroup" -Text "Télécharger le fichier Csv" -Url "Fichier/ademptygroup_groupe.csv"
+                New-UDLink -Id "dlEmptyGroup" -Text "Télécharger le fichier Csv" -Url "Fichier/ademptygroup_$Session:Domaine.csv"
 
 	
         New-UDGrid -Id "GridEmptyGroup" -Title "Fichier : " -Headers @("Name", "DistinguishedName") -Properties @("Name", "DistinguishedName") -DefaultSortColumn "Name" -DefaultSortDescending -Endpoint {
-            $csv = import-csv $Root\ademptygroup_groupe.csv
+            $csv = import-csv $Root\ademptygroup_$Session:Domaine.csv
             $csv | Select-Object "Name", "DistinguishedName"| Out-UDGridData
         } -PageSize 11
 	}
